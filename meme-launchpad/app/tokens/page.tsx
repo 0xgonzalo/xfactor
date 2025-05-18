@@ -84,7 +84,7 @@ export default function TokensPage() {
           <h1 className="text-3xl font-bold">Meme Token Launchpad</h1>
           <Link
             href="/"
-            className="rounded-full bg-black text-white px-4 py-2 hover:bg-gray-800 transition-colors"
+            className="rounded-full border border-white text-white px-4 py-2 hover:bg-gray-800 transition-colors"
           >
             Home
           </Link>

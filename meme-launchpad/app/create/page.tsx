@@ -215,7 +215,7 @@ export default function CreateToken() {
             Token Created Successfully!
           </h2>
           <p className="mb-4">
-            Your meme token has been created and deployed on the blockchain.
+            Your token has been Crafted and deployed on the blockchain. Good Luck humble alchemist 🔮
           </p>
           {hash && (
             <p className="mb-4 text-sm">
