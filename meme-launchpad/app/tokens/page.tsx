@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { formatEther } from 'viem';
 import Link from 'next/link';
+import Image from 'next/image';
 
 // TokenSale type from contract
 type TokenSale = {
@@ -12,6 +13,7 @@ type TokenSale = {
   sold: bigint;
   raised: bigint;
   isOpen: boolean;
+  imagePath?: string; // Optional image path from our API
 };
 
 export default function TokensPage() {
@@ -110,8 +112,29 @@ export default function TokensPage() {
                 key={sale.token}
                 className="border border-gray-200 dark:border-gray-800 rounded-lg p-6 hover:shadow-md transition-shadow"
               >
-                <h2 className="text-xl font-bold mb-2">{sale.name}</h2>
-                <p className="text-gray-600 dark:text-gray-400 mb-4">Token #{index + 1}</p>
+                <div className="flex items-center space-x-4 mb-4">
+                  <div className="flex-shrink-0">
+                    {sale.imagePath ? (
+                      <div className="w-16 h-16 rounded-full overflow-hidden border border-gray-200 dark:border-gray-700">
+                        <Image
+                          src={sale.imagePath}
+                          alt={`${sale.name} logo`}
+                          width={64}
+                          height={64}
+                          className="object-cover w-full h-full"
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center border border-gray-200 dark:border-gray-700">
+                        <span className="text-gray-400 text-xs font-medium">{sale.name.slice(0, 2).toUpperCase()}</span>
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold">{sale.name}</h2>
+                    <p className="text-gray-600 dark:text-gray-400">Token #{index + 1}</p>
+                  </div>
+                </div>
                 
                 <div className="space-y-2 text-sm">
                   <p>

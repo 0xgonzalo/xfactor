@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createPublicClient, http, defineChain } from 'viem';
+import { readdir, mkdir } from 'fs/promises';
+import { join } from 'path';
+import { existsSync } from 'fs';
 
 // Define Mantle Sepolia chain
 const mantleSepolia = defineChain({
@@ -28,6 +31,14 @@ type TokenSale = {
   raised: bigint;
   isOpen: boolean;
 };
+
+// Remove unused type or add eslint-disable comment
+/* eslint-disable @typescript-eslint/no-unused-vars */
+// Enhanced TokenSale type with image path - kept for documentation purposes
+type EnhancedTokenSale = TokenSale & {
+  imagePath?: string;
+};
+/* eslint-enable @typescript-eslint/no-unused-vars */
 
 // Define the ABI for the Launchpad contract (only what we need)
 const LAUNCHPAD_ABI = [
@@ -63,6 +74,38 @@ const client = createPublicClient({
 // Launchpad contract address
 const LAUNCHPAD_ADDRESS = '0x709F1b8Dc07A7D099825360283410999af09CAC9';
 
+// Helper function to find image for a token by its name
+async function findTokenImage(tokenName: string): Promise<string | undefined> {
+  try {
+    // Ensure the token-images directory exists
+    const uploadsDir = join(process.cwd(), 'public', 'token-images');
+    
+    // Check if directory exists
+    if (!existsSync(uploadsDir)) {
+      await mkdir(uploadsDir, { recursive: true });
+      return undefined; // No images yet since we just created the directory
+    }
+    
+    // Get the list of files in the token-images directory
+    const files = await readdir(uploadsDir);
+    
+    // Look for files that start with the token name (converted to lowercase)
+    const tokenNameLower = tokenName.toLowerCase();
+    const matchingFile = files.find(file => 
+      file.toLowerCase().startsWith(tokenNameLower)
+    );
+    
+    if (matchingFile) {
+      return `/token-images/${matchingFile}`;
+    }
+    
+    return undefined;
+  } catch (error) {
+    console.error('Error finding token image:', error);
+    return undefined;
+  }
+}
+
 export async function GET(request: NextRequest) {
   try {
     // Get the index parameter from the URL
@@ -86,6 +129,9 @@ export async function GET(request: NextRequest) {
       args: [BigInt(index)],
     }) as TokenSale;
     
+    // Find the token image
+    const imagePath = await findTokenImage(tokenSale.name);
+    
     // Convert BigInt values to strings to make them serializable
     const serializedTokenSale = {
       token: tokenSale.token,
@@ -93,7 +139,8 @@ export async function GET(request: NextRequest) {
       creator: tokenSale.creator,
       sold: tokenSale.sold.toString(),
       raised: tokenSale.raised.toString(),
-      isOpen: tokenSale.isOpen
+      isOpen: tokenSale.isOpen,
+      imagePath: imagePath
     };
     
     // Return the token sale data with serializable values
