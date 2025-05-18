@@ -1,53 +1,46 @@
-'use client';
+"use client";
 
-import { WagmiProvider, createConfig, http } from 'wagmi';
-import { injected, metaMask, coinbaseWallet } from 'wagmi/connectors';
-import { defineChain } from 'viem';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactNode } from 'react';
+import { ReactNode } from "react";
+import { PrivyProvider } from "@privy-io/react-auth";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { createConfig, WagmiProvider } from "@privy-io/wagmi";
+import { mainnet, sepolia } from "viem/chains";
+import { http } from "wagmi";
 
-// Create a React Query client
+// Create a new Query Client for TanStack Query
 const queryClient = new QueryClient();
 
-// Define Mantle Sepolia chain
-const mantleSepolia = defineChain({
-  id: 5003,
-  name: 'Mantle Sepolia',
-  nativeCurrency: {
-    decimals: 18,
-    name: 'MNT',
-    symbol: 'MNT',
-  },
-  rpcUrls: {
-    default: { http: ['https://rpc.sepolia.mantle.xyz'] },
-  },
-  blockExplorers: {
-    default: { name: 'Explorer', url: 'https://explorer.sepolia.mantle.xyz' },
-  },
-  testnet: true,
-});
-
-// Create Wagmi config
-const config = createConfig({
-  chains: [mantleSepolia],
+// Create a minimal wagmi config
+const wagmiConfig = createConfig({
+  chains: [mainnet, sepolia],
   transports: {
-    [mantleSepolia.id]: http('https://rpc.sepolia.mantle.xyz'),
+    [mainnet.id]: http(),
+    [sepolia.id]: http(),
   },
-  connectors: [
-    injected(),
-    metaMask(),
-    coinbaseWallet({
-      appName: 'Meme Token Launchpad',
-    }),
-  ],
 });
 
-export function Providers({ children }: { children: ReactNode }) {
+export default function Providers({ children }: { children: ReactNode }) {
   return (
-    <WagmiProvider config={config}>
+    <PrivyProvider
+      appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID || ""}
+      config={{
+        loginMethods: ["twitter", "wallet", "email"],
+        appearance: {
+          theme: "light",
+          accentColor: "#676FFF",
+          showWalletLoginFirst: false,
+        },
+        embeddedWallets: {
+          createOnLogin: "users-without-wallets",
+          showWalletUIs: false,
+        },
+      }}
+    >
       <QueryClientProvider client={queryClient}>
-        {children}
+        <WagmiProvider config={wagmiConfig}>
+          {children}
+        </WagmiProvider>
       </QueryClientProvider>
-    </WagmiProvider>
+    </PrivyProvider>
   );
 } 

@@ -10,6 +10,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@privy-io/react-auth": "^2.13.2",
+    "@privy-io/wagmi": "^1.0.3",
     "@tanstack/react-query": "^5.76.1",
     "next": "15.3.2",
     "react": "^18.2.0",
