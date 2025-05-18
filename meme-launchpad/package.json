@@ -41,6 +41,7 @@
     "eslint-config-next": "15.3.2",
     "hardhat": "^2.24.0",
     "hardhat-gas-reporter": "^2.2.3",
+    "pino-pretty": "^13.0.0",
     "solidity-coverage": "^0.8.16",
     "tailwindcss": "^4",
     "ts-node": "^10.9.2",

@@ -24,8 +24,8 @@ const LAUNCHPAD_ABI = [
 // Launchpad contract address
 const LAUNCHPAD_ADDRESS = '0x709F1b8Dc07A7D099825360283410999af09CAC9';
 
-// Mantle Sepolia chain ID
-const MANTLE_SEPOLIA_CHAIN_ID = 5003;
+// Mantle Sepolia chain ID - keeping as reference
+// const MANTLE_SEPOLIA_CHAIN_ID = 5003;
 
 export default function CreateToken() {
   const [name, setName] = useState("");
@@ -152,8 +152,9 @@ export default function CreateToken() {
       // Set args to trigger the simulation
       setSimulationArgs([name, symbol.toUpperCase()]);
       
-    } catch (err: any) {
-      setError(err.message || "Something went wrong");
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Something went wrong";
+      setError(errorMessage);
       setCreationStep('form');
       setIsLoading(false);
     }
@@ -179,17 +180,20 @@ export default function CreateToken() {
   // If there's a write error, display it
   useEffect(() => {
     if (writeError && !error) {
-      setError((writeError as any).shortMessage || writeError.message);
+      const errorMessage = typeof writeError === 'object' && writeError !== null && 'shortMessage' in writeError 
+        ? (writeError as { shortMessage?: string }).shortMessage || writeError.message
+        : writeError.message;
+      setError(errorMessage || "Error writing to contract");
       setCreationStep('form');
       setIsLoading(false);
       setSimulationArgs(null);
     }
   }, [writeError, error]);
 
-  // Format wallet address for display
-  const formatAddress = (address: string) => {
-    return `${address.slice(0, 6)}...${address.slice(-4)}`;
-  };
+  // We'll keep this utility function for possible future use
+  // const formatAddress = (address: string) => {
+  //   return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  // };
 
   const isPending = isLoading || isWritePending || isTxLoading;
 

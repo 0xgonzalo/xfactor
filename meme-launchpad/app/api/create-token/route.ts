@@ -2,11 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { writeFile } from 'fs/promises';
 import { join } from 'path';
 import * as crypto from 'crypto';
-import { createPublicClient, http, defineChain, createWalletClient, parseEther } from 'viem';
-import { privateKeyToAccount } from 'viem/accounts';
+import { defineChain } from 'viem';
 
-// Define Mantle Sepolia chain
-const mantleSepolia = defineChain({
+// Define Mantle Sepolia chain - keeping this for documentation/reference purposes
+/* eslint-disable @typescript-eslint/no-unused-vars */
+const _mantleSepolia = defineChain({
   id: 5003,
   name: 'Mantle Sepolia',
   nativeCurrency: {
@@ -23,8 +23,8 @@ const mantleSepolia = defineChain({
   testnet: true,
 });
 
-// Define the ABI for the Launchpad contract (only what we need)
-const LAUNCHPAD_ABI = [
+// Define the ABI for the Launchpad contract (only what we need) - keeping for reference
+const _LAUNCHPAD_ABI = [
   {
     "inputs": [
       { "internalType": "string", "name": "_name", "type": "string" },
@@ -37,13 +37,14 @@ const LAUNCHPAD_ABI = [
   }
 ] as const;
 
-// Launchpad contract address
-const LAUNCHPAD_ADDRESS = '0x709F1b8Dc07A7D099825360283410999af09CAC9';
+// Launchpad contract address - keeping for reference
+const _LAUNCHPAD_ADDRESS = '0x709F1b8Dc07A7D099825360283410999af09CAC9';
 
 // NOTE: In a production environment, this private key would be securely stored
 // This is for DEMO purposes only - this account would only be used to relay transactions
 // A better approach would be to have users sign and send transactions directly from their wallets
-const RELAYER_PRIVATE_KEY = process.env.RELAYER_PRIVATE_KEY;
+const _RELAYER_PRIVATE_KEY = process.env.RELAYER_PRIVATE_KEY;
+/* eslint-enable @typescript-eslint/no-unused-vars */
 
 export async function POST(request: NextRequest) {
   try {
@@ -118,10 +119,11 @@ export async function POST(request: NextRequest) {
       note: "Please note: For this demo, tokens won't appear on the tokens page until actually created on the blockchain. To create tokens on the blockchain, you need to call the Launchpad contract's create function directly from your wallet."
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error creating token:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
-      { error: 'Failed to create token', details: error.message },
+      { error: 'Failed to create token', details: errorMessage },
       { status: 500 }
     );
   }

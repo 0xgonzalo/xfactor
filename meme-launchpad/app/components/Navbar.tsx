@@ -2,9 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { useAccount, useConnect, useDisconnect } from "wagmi";
-import { injected, metaMask } from "wagmi/connectors";
+import { metaMask } from "wagmi/connectors";
 
 export default function Navbar() {
   const [isModalOpen, setIsModalOpen] = useState(false);
