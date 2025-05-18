@@ -108,9 +108,10 @@ export default function TokensPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {tokenSales.map((sale, index) => (
-              <div
+              <Link
                 key={sale.token}
-                className="border border-gray-200 dark:border-gray-800 rounded-lg p-6 hover:shadow-md transition-shadow"
+                href={`/tokens/${index}`}
+                className="border border-gray-200 dark:border-gray-800 rounded-lg p-6 hover:shadow-md transition-shadow block"
               >
                 <div className="flex items-center space-x-4 mb-4">
                   <div className="flex-shrink-0">
@@ -139,25 +140,15 @@ export default function TokensPage() {
                 <div className="space-y-2 text-sm">
                   <p>
                     <span className="font-medium">Address:</span>{' '}
-                    <a 
-                      href={`https://explorer.sepolia.mantle.xyz/address/${sale.token}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 dark:text-blue-400 hover:underline"
-                    >
+                    <span className="text-blue-600 dark:text-blue-400">
                       {formatAddress(sale.token)}
-                    </a>
+                    </span>
                   </p>
                   <p>
                     <span className="font-medium">Creator:</span>{' '}
-                    <a 
-                      href={`https://explorer.sepolia.mantle.xyz/address/${sale.creator}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 dark:text-blue-400 hover:underline"
-                    >
+                    <span className="text-blue-600 dark:text-blue-400">
                       {formatAddress(sale.creator)}
-                    </a>
+                    </span>
                   </p>
                   <p>
                     <span className="font-medium">Tokens Sold:</span>{' '}
@@ -174,7 +165,7 @@ export default function TokensPage() {
                     </span>
                   </p>
                 </div>
-              </div>
+              </Link>
             ))}
 
             {tokenSales.length === 0 && (
