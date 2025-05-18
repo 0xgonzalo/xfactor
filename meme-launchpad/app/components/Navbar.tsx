@@ -6,6 +6,7 @@ import Image from "next/image";
 import { usePrivy } from "@privy-io/react-auth";
 
 export default function Navbar() {
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   // Privy hooks
   const { login, logout, authenticated, ready, user, connectWallet } = usePrivy();
 
@@ -41,13 +42,30 @@ export default function Navbar() {
   
   const handleDisconnect = () => {
     logout();
+    setIsDropdownOpen(false);
   };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setIsDropdownOpen(false);
+    };
+    
+    if (isDropdownOpen) {
+      document.addEventListener('click', handleClickOutside);
+    }
+    
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [isDropdownOpen]);
 
   return (
     <nav className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          <div className="flex items-center">
+        <div className="grid grid-cols-2 h-16">
+          {/* Left Column - Header */}
+          <div className="flex items-center justify-start">
             <Link href="/" className="flex items-center">
               <Image 
                 src="/book.png" 
@@ -60,7 +78,12 @@ export default function Navbar() {
                 xFACTOR
               </span>
             </Link>
-            <div className="hidden sm:ml-6 sm:flex sm:space-x-4">
+          </div>
+          
+          {/* Right Column - Tabs and Wallet */}
+          <div className="flex items-center justify-end">
+            {/* Navigation Tabs */}
+            <div className="flex space-x-6 mr-8">
               <Link 
                 href="/"
                 className="px-3 py-2 text-sm font-medium text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400"
@@ -80,17 +103,37 @@ export default function Navbar() {
                 Create
               </Link>
             </div>
-          </div>
-          <div className="flex items-center">
+            
+            {/* Wallet Button */}
             {authenticated ? (
               <div className="relative">
                 <button
-                  onClick={handleDisconnect}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsDropdownOpen(!isDropdownOpen);
+                  }}
                   className="px-4 py-2 bg-green-100 dark:bg-green-900 border border-green-300 dark:border-green-700 text-green-800 dark:text-green-300 rounded-lg flex items-center space-x-2"
                 >
                   <div className="h-2 w-2 bg-green-500 rounded-full"></div>
                   <span>{getDisplayAddress()}</span>
                 </button>
+                {isDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg py-1 border border-gray-200 dark:border-gray-700 z-50">
+                    <Link
+                      href="/profile"
+                      className="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      onClick={() => setIsDropdownOpen(false)}
+                    >
+                      Profile
+                    </Link>
+                    <button
+                      onClick={handleDisconnect}
+                      className="w-full px-4 py-2 text-left text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                      Disconnect
+                    </button>
+                  </div>
+                )}
               </div>
             ) : (
               <button
