@@ -1,6 +1,7 @@
 'use client';
 
 import { WagmiProvider, createConfig, http } from 'wagmi';
+import { injected, metaMask, coinbaseWallet } from 'wagmi/connectors';
 import { defineChain } from 'viem';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactNode } from 'react';
@@ -32,6 +33,13 @@ const config = createConfig({
   transports: {
     [mantleSepolia.id]: http('https://rpc.sepolia.mantle.xyz'),
   },
+  connectors: [
+    injected(),
+    metaMask(),
+    coinbaseWallet({
+      appName: 'Meme Token Launchpad',
+    }),
+  ],
 });
 
 export function Providers({ children }: { children: ReactNode }) {
