@@ -7,6 +7,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 require("@nomicfoundation/hardhat-toolbox-viem");
+require("tsconfig-paths/register"); // Add TypeScript paths support
 
 /** @type {import('hardhat/config').HardhatUserConfig} */
 const config = {
@@ -15,6 +16,16 @@ const config = {
       { version: "0.8.27" },
       { version: "0.7.6" },
     ],
+  },
+  typechain: {
+    outDir: 'types',
+    target: 'ethers-v6',
+  },
+  paths: {
+    sources: "./contracts",
+    tests: "./test",
+    cache: "./cache",
+    artifacts: "./artifacts"
   },
   networks: {
     // For local development and compilation (doesn't require a private key)
