@@ -8,7 +8,7 @@ import { usePrivy } from "@privy-io/react-auth";
 export default function Navbar() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   // Privy hooks
-  const { login, logout, authenticated, ready, user, connectWallet } = usePrivy();
+  const { login, logout, authenticated, user } = usePrivy();
 
   // Format address for display
   const formatAddress = (address: string) => {
@@ -101,6 +101,12 @@ export default function Navbar() {
                 className="px-3 py-2 text-sm font-medium text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400"
               >
                 Create
+              </Link>
+              <Link 
+                href="/manifesto"
+                className="px-3 py-2 text-sm font-medium text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400"
+              >
+                Manifesto
               </Link>
             </div>
             

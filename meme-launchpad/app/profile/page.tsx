@@ -192,7 +192,7 @@ export default function ProfilePage() {
             
             {activeTab === "coinsCreated" && (
               <div className="text-center text-gray-400 mt-8">
-                <p>You haven't created any coins yet</p>
+                <p>You haven&apos;t created any coins yet</p>
                 <Link href="/create" className="mt-4 px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg inline-block">
                   Create a coin
                 </Link>
