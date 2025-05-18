@@ -1,0 +1,22 @@
+{
+  "name": "eliza-mantle-bot",
+  "version": "0.1.0",
+  "description": "Twitter bot for minting tokens on Mantle via mentions",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node dist/index.js",
+    "dev": "tsc --watch & node --watch dist/index.js",
+    "build": "tsc --skipLibCheck --noEmitOnError false"
+  },
+  "dependencies": {
+    "dotenv": "^16.5.0",
+    "ethers": "^6.11.1",
+    "node-fetch": "^3.3.2",
+    "twitter-api-v2": "^1.16.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.0",
+    "typescript": "^5.8.3"
+  }
+} 
