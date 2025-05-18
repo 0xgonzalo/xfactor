@@ -199,7 +199,15 @@ export default function CreateToken() {
 
   return (
     <div className="flex flex-col items-center min-h-screen p-8">
-      <h1 className="text-3xl font-bold mb-8 mt-8">Create Your Meme Token</h1>
+      <div className="flex items-center justify-center gap-4 mb-8 mt-8">
+        <h1 className="text-3xl font-bold">Craft Your Token</h1>
+        <Image 
+          src="/alchemy-1.png" 
+          alt="Alchemy" 
+          width={48} 
+          height={48} 
+        />
+      </div>
       
       {success ? (
         <div className="max-w-md w-full bg-green-50 dark:bg-green-900/20 p-6 rounded-lg border border-green-200 dark:border-green-800">

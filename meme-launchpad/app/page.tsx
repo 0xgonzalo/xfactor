@@ -3,39 +3,53 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <div className="flex flex-col items-center">
-          <h1 className="text-4xl font-bold mb-4">Meme Token Launchpad</h1>
-          <p className="text-lg text-gray-600 dark:text-gray-400 mb-8 text-center sm:text-left">
-            Create and explore meme tokens on the Mantle blockchain
-          </p>
+    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen sm:px-20 font-[family-name:var(--font-geist-sans)]">
+      <main className="flex flex-col gap-[32px] row-start-2 w-full">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+          <div className="flex flex-col gap-8">
+            <div className="flex flex-col">
+              <h1 className="text-4xl font-bold mb-4">xFACTOR Launchpad</h1>
+              <p className="text-lg text-gray-600 dark:text-gray-400 mb-8">
+                Own your narrative as a social alchemist, blending tokens, ideas, and projects within the emerging disputes for the attention economy.
+              </p>
+            </div>
+            
+            <div className="flex gap-4 items-center flex-col sm:flex-row">
+              <Link
+                className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
+                href="/create"
+              >
+                Create Token
+              </Link>
+              <Link
+                className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
+                href="/tokens"
+              >
+                View All Tokens
+              </Link>
+              <a
+                className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto"
+                href="https://twitter.com/Microprompt_"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Create via Twitter
+              </a>
+            </div>
+          </div>
+          
+          <div className="flex justify-center items-center order-first md:order-last">
+            <Image 
+              src="/bg-image.png" 
+              alt="Meme Token Launchpad" 
+              width={600} 
+              height={300} 
+              className="rounded-lg"
+            />
+          </div>
         </div>
-        
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <Link
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="/create"
-          >
-            Create Token
-          </Link>
-          <Link
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="/tokens"
-          >
-            View All Tokens
-          </Link>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto"
-            href="https://twitter.com/Microprompt_"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Create via Twitter
-          </a>
-        </div>
-        
-        <div className="mt-10 p-6 border border-gray-200 dark:border-gray-800 rounded-lg max-w-xl">
+
+        <div className="my-10 p-6 border border-gray-200 dark:border-gray-800 rounded-lg max-w-xl">
           <h2 className="text-xl font-bold mb-4">How it works</h2>
           <ol className="list-decimal pl-5 space-y-2">
             <li>
@@ -52,7 +66,7 @@ export default function Home() {
           </ol>
         </div>
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
+      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center mt-16 pb-8">
         <a
           className="flex items-center gap-2 hover:underline hover:underline-offset-4"
           href="https://explorer.sepolia.mantle.xyz/address/0x709F1b8Dc07A7D099825360283410999af09CAC9"

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useAccount, useConnect, useDisconnect } from "wagmi";
 import { metaMask } from "wagmi/connectors";
 
@@ -40,8 +41,15 @@ export default function Navbar() {
           <div className="flex justify-between h-16">
             <div className="flex items-center">
               <Link href="/" className="flex items-center">
-                <span className="text-xl font-bold text-blue-600 dark:text-blue-400">
-                  Meme Launchpad
+                <Image 
+                  src="/book.png" 
+                  alt="Book" 
+                  width={32} 
+                  height={32} 
+                  className="mr-2"
+                />
+                <span className="text-xl font-bold text-deep-purple">
+                  xFACTOR
                 </span>
               </Link>
               <div className="hidden sm:ml-6 sm:flex sm:space-x-4">
