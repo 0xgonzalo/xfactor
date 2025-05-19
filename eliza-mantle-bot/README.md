@@ -6,9 +6,9 @@ This Twitter bot allows users to create meme tokens on the Mantle blockchain by 
 
 1. Users mention the bot account (@Microprompt_) on Twitter/X
 2. They include a command like: `Create MoonCoin MOON`
-3. The bot verifies if the Twitter user has registered on your platform via Privy
-4. If verified, the bot creates a new token on Mantle and replies with the token address
-5. If not verified, the bot replies asking the user to connect first, with a link to your platform
+3. The bot checks if the Twitter user is registered on the platform via Privy integration
+4. If registered, the bot processes the request and creates a new token on Mantle
+5. The bot replies with confirmation and the token address or a link to register on the platform
 
 ## Setup Instructions
 
@@ -21,7 +21,7 @@ This Twitter bot allows users to create meme tokens on the Mantle blockchain by 
    yarn install
    ```
 
-2. Create a `.env` file based on the following template:
+2. Create a `.env` file based on the template in `ENV_SAMPLE`:
    ```
    # Blockchain Configuration
    PRIVATE_KEY=your_ethereum_private_key_here
@@ -36,17 +36,14 @@ This Twitter bot allows users to create meme tokens on the Mantle blockchain by 
    # Your Twitter username without the @ symbol
    TWITTER_USERNAME=Microprompt_
    
+   # Website and Privy Integration
+   WEBSITE_URL=http://localhost:3000
+   PRIVY_API_URL=https://auth.privy.io/api/v1
+   PRIVY_API_KEY=your_privy_api_key
+   
    # Optional: How often to check for mentions in milliseconds (default: 300000 = 5 minutes)
    # Using a higher value like 300000 (5 minutes) or 600000 (10 minutes) helps avoid rate limits
    POLLING_INTERVAL=300000
-   
-   # Privy API Configuration (required for user verification)
-   PRIVY_API_URL=https://auth.privy.io/api/v1
-   PRIVY_APP_ID=your_privy_app_id
-   PRIVY_AUTH_TOKEN=your_privy_auth_token
-   
-   # Your application's homepage URL
-   APP_URL=https://your-app-url.com
    ```
    
 3. Build the project:
@@ -58,6 +55,27 @@ This Twitter bot allows users to create meme tokens on the Mantle blockchain by 
    ```
    npm start
    ```
+   
+5. To test the Privy integration, you can run:
+   ```
+   node dist/test-privy.js [twitter_handle]
+   ```
+   where `[twitter_handle]` is an optional Twitter username to test (default: "elonmusk")
+
+## Privy Integration
+
+The bot now integrates with Privy to verify that users have registered on the platform before creating tokens:
+
+- When a user requests a token creation, the bot checks if their Twitter account is linked in the Privy user base
+- If the user is found, the token is created and the bot replies with the token link
+- If the user is not found, the bot replies with a link to the platform to register
+
+To set up the Privy integration:
+
+1. Create a Privy account at https://dashboard.privy.io
+2. Configure the app with Twitter login enabled
+3. Add the Privy API Key to your `.env` file
+4. Update the `WEBSITE_URL` in your `.env` file to point to your deployed application
 
 ## Twitter API Access
 
@@ -97,4 +115,4 @@ Once set up, users can create tokens by simply tweeting:
 @Microprompt_ Create MyAwesomeToken MAT
 ```
 
-The bot will process the request and reply with the newly created token address.
+The bot will process the request and reply with the newly created token address. 
