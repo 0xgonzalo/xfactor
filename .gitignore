@@ -8,12 +8,15 @@ build/
 out/
 .turbo
 
-# Env files
+# Env files - strictly excluded
 .env
+.env.*
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+*/**/.env
+*/**/.env.*
 
 # Logs
 logs
