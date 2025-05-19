@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import fetch from 'node-fetch';
 import type { TweetV1, TweetV2, TweetSearchRecentV2Paginator } from 'twitter-api-v2';
 
 // Load environment variables
@@ -60,6 +61,17 @@ if (!process.env.TWITTER_API_KEY || !process.env.TWITTER_API_SECRET ||
     !process.env.TWITTER_ACCESS_TOKEN || !process.env.TWITTER_ACCESS_TOKEN_SECRET) {
   console.error('❌ Twitter API credentials not found in .env file!');
   process.exit(1);
+}
+
+// We need the Privy API URL and app ID to verify users
+const PRIVY_API_URL = process.env.PRIVY_API_URL || 'https://auth.privy.io/api/v1';
+const PRIVY_APP_ID = process.env.PRIVY_APP_ID || '';
+const PRIVY_AUTH_TOKEN = process.env.PRIVY_AUTH_TOKEN || '';
+const APP_URL = process.env.APP_URL || 'https://meme-launchpad.vercel.app'; // Homepage URL
+
+// Verify Privy credentials
+if (!PRIVY_APP_ID || !PRIVY_AUTH_TOKEN) {
+  console.warn('⚠️ Privy API credentials not found in .env file. User verification will be skipped!');
 }
 
 // Bot state
@@ -243,7 +255,6 @@ async function startTwitterBot() {
 }
 
 // Function to search for mentions using the v2 search API 
-// (more likely to be available in free/basic tiers)
 async function searchForMentions() {
   // Check rate limiting before making the request
   if (!await handleRateLimit('search')) {
@@ -260,7 +271,8 @@ async function searchForMentions() {
     const searchOptions: any = {
       max_results: 10,
       expansions: ['author_id'],
-      'tweet.fields': ['created_at', 'author_id', 'text']
+      'tweet.fields': ['created_at', 'author_id', 'text'],
+      'user.fields': ['username']
     };
     
     if (botState.lastProcessedTweetId) {
@@ -286,8 +298,8 @@ async function searchForMentions() {
       saveState();
     }
     
-    // Process each tweet - spreading them out to avoid rate limits
-    for (let i = 0; i < tweets.length; i++) {
+    // Process each mention in reverse order (oldest first)
+    for (let i = tweets.length - 1; i >= 0; i--) {
       const tweet = tweets[i];
       
       // Skip if we've already processed this tweet
@@ -296,43 +308,30 @@ async function searchForMentions() {
         continue;
       }
       
-      console.log(`🔍 Processing tweet: ${tweet.text}`);
+      console.log(`📝 Processing tweet ${i + 1}/${tweets.length}: ${tweet.id}`);
+      console.log(`💬 Tweet text: ${tweet.text}`);
       
-      // Add a short delay between processing tweets to avoid rate limit issues
-      if (i > 0) {
-        await delay(2000); // 2 second delay between tweets
-      }
+      // Find the author information in the includes
+      const author = searchResult.data?.includes?.users?.find((user: any) => user.id === tweet.author_id);
+      const authorUsername = author?.username || 'unknown';
       
-      // Process the tweet
-      await processCreateCommand(tweet.text, tweet.id);
+      console.log(`👤 Author: @${authorUsername} (ID: ${tweet.author_id})`);
+      
+      // Process the tweet as a command
+      await processCreateCommand(tweet.text, tweet.id, tweet.author_id, authorUsername);
       
       // Mark as processed
       botState.processedTweets.push(tweet.id);
-      
-      // Save state after each processed tweet
-      if (i % 3 === 0) {
-        saveState();
-      }
     }
     
-    // Final save state
+    // Save state after processing all tweets
     saveState();
   } catch (error: any) {
     console.error('❌ Error searching for mentions:', error.message || error);
     
-    // Handle rate limiting errors
-    if (error.message?.includes('429')) {
-      console.log('⏱️ Twitter rate limit reached. Waiting before trying again...');
-      // Implementing a simple exponential backoff
-      const waitTime = 15 * 60 * 1000; // 15 minutes
-      console.log(`⏳ Waiting ${waitTime/1000} seconds before trying again...`);
-      await delay(waitTime);
-      return;
-    }
-    
-    // Try fallback to v1.1 search if v2 failed with 403
-    if (error.message?.includes('403')) {
-      console.log('⚠️ Trying fallback to v1.1 search...');
+    // Try the v1 fallback if we're having issues with v2
+    if (error.message?.includes('429') || error.message?.includes('rate limit')) {
+      console.log('⚠️ Rate limited or other v2 API issue, trying v1 fallback...');
       await searchForMentionsV1Fallback();
     }
   }
@@ -392,7 +391,7 @@ async function searchForMentionsV1Fallback() {
       }
       
       console.log(`🔍 Processing tweet from @${tweet.user.screen_name}: ${tweet.full_text || tweet.text}`);
-      await processCreateCommand(tweet.full_text || tweet.text, tweet.id_str);
+      await processCreateCommand(tweet.full_text || tweet.text, tweet.id_str, tweet.user.id_str, tweet.user.screen_name);
       
       // Mark as processed
       botState.processedTweets.push(tweet.id_str);
@@ -417,7 +416,7 @@ async function searchForMentionsV1Fallback() {
 }
 
 // Process a potential token creation command
-async function processCreateCommand(tweetText: string, tweetId: string) {
+async function processCreateCommand(tweetText: string, tweetId: string, authorId: string, authorUsername: string) {
   const createPattern = /create\s+([a-zA-Z0-9_]+)\s+([a-zA-Z0-9_]+)/i;
   const match = tweetText.match(createPattern);
   
@@ -427,19 +426,66 @@ async function processCreateCommand(tweetText: string, tweetId: string) {
   }
   
   const [_, tokenName, tokenSymbol] = match;
-  
+
   try {
-    // For simplicity, we're using the bot's wallet as the creator address
-    // In a real implementation, you would have a way to link Twitter users to blockchain addresses
-    const txHash = await createToken(wallet.address, tokenName, tokenSymbol);
+    // Check if the Twitter user exists in Privy's user base
+    const isPrivyUser = await checkTwitterUserInPrivy(authorUsername);
     
-    // Reply to the tweet (with rate limiting)
-    await sendReply(tweetId, `🎉 Successfully created ${tokenName} (${tokenSymbol}) token on Mantle!\nTransaction: https://explorer.sepolia.mantle.xyz/tx/${txHash}`);
+    if (isPrivyUser) {
+      // Create token for validated user
+      console.log(`✅ Twitter user @${authorUsername} verified in Privy. Creating token...`);
+      const txHash = await createToken(wallet.address, tokenName, tokenSymbol);
+      
+      // Reply to the tweet with success message
+      await sendReply(tweetId, `🎉 Successfully created ${tokenName} (${tokenSymbol}) token on Mantle!\nTransaction: https://explorer.sepolia.mantle.xyz/tx/${txHash}`);
+    } else {
+      // User not found in Privy - send them to connect first
+      console.log(`❌ Twitter user @${authorUsername} not found in Privy. Sending connection prompt...`);
+      await sendReply(tweetId, `😊 Before creating tokens, please connect your Twitter account on our platform first.\nConnect here: ${APP_URL}`);
+    }
   } catch (error: any) {
     console.error('❌ Error processing command:', error);
     
-    // Reply with error message (with rate limiting)
-    await sendReply(tweetId, `Sorry, there was an error creating your token: ${error.message || 'Unknown error'}`);
+    // Reply with error message
+    await sendReply(tweetId, `Sorry, there was an error processing your request: ${error.message || 'Unknown error'}`);
+  }
+}
+
+// Check if a Twitter username exists in Privy's user base
+async function checkTwitterUserInPrivy(twitterUsername: string): Promise<boolean> {
+  // Skip verification if Privy credentials are not set
+  if (!PRIVY_APP_ID || !PRIVY_AUTH_TOKEN) {
+    console.warn('⚠️ Privy credentials not set. Skipping verification and assuming user is valid.');
+    return true;
+  }
+  
+  try {
+    console.log(`🔍 Checking if Twitter user @${twitterUsername} exists in Privy...`);
+    
+    const response = await fetch(`${PRIVY_API_URL}/users?app_id=${PRIVY_APP_ID}&twitter_handle=${twitterUsername}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${PRIVY_AUTH_TOKEN}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Privy API error: ${response.status} ${response.statusText}`);
+    }
+    
+    const data = await response.json() as { users?: { id: string }[] };
+    const users = data.users || [];
+    
+    // Return true if the user exists (length > 0)
+    const exists = users.length > 0;
+    console.log(`${exists ? '✅' : '❌'} Twitter user @${twitterUsername} ${exists ? 'found' : 'not found'} in Privy`);
+    return exists;
+  } catch (error: any) {
+    console.error('❌ Error verifying Twitter user in Privy:', error.message || error);
+    // In case of error, default to allowing the creation (to avoid blocking users due to API issues)
+    // You may want to change this behavior based on your requirements
+    return false;
   }
 }
 
