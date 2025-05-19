@@ -1,12 +1,12 @@
-# Meme Launchpad
+# xFACTOR Launchpad
 
-A simple launchpad for memecoin tokens on the EVM compatible chains.
+A simple launchpad for memecoin tokens on the Mantle Network. This is only the launchpad part hosted online.
 
 <!-- Added to normalize directory structure -->
 
 ## Features
 
-- Create your memecoin token
+- Create your tokens
 - Create a presale
 - Launch your token
 - Lock liquidity
