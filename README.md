@@ -1,6 +1,8 @@
 # xFACTOR Launchpad
 
-xFactor is a social tokens launchpad made for having the 
+xFACTOR is a social token launchpad on Mantle Sepolia designed to combine the ease of intuitive token creation with social dynamics that enable creators and their supporters to benefit mutually from token growth. You can create a token from the form inside the Web App or create a twitter post tagging @microprompt and saying "create" "token_name" "symbol". The bot is going to check if the user is already in the Privy Database and will response with a post confirming if the token was succesfully created or not.
+
+Some of its most innovative features include the ability to split creator fees between the creator and their community, or to reserve a percentage of the token supply for the creator’s audience. Currently, verification is done through a snapshot of the creator's Twitter followers at a given time, stored in a JSON file and later used for claiming within the platform.
 
 This repository contains two projects:
 
